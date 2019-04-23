@@ -23,7 +23,7 @@ class Annealing_solver:
         self.adjacency_matrix = ext.Analytics.get_neighbour_matrix(g)
         row_length = len(self.current_graph.nodes())
 
-        while True:
+        while 0.001 < self.temperature:
             x = random.randint(0, row_length - 1)
             y = random.randint(0, row_length - 1)
             move_type = self.adjacency_matrix[x][y]
