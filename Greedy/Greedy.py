@@ -6,7 +6,7 @@ class Greedy:
     
     @staticmethod
     def greedy_solve(g):
-        nodes = g.nodes()
+        nodes = list(g.nodes())
 
         for edge in zip(nodes[:-1], nodes[1:]):
             for x, y in edge:

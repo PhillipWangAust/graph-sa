@@ -1,6 +1,6 @@
 cycler==0.10.0
 decorator==4.4.0
-extended-networkx-tools==0.4.0.dev1
+extended-networkx-tools==0.4.1.dev1
 kiwisolver==1.0.1
 matplotlib==3.0.3
 networkx==2.3
