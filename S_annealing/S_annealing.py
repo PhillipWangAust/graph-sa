@@ -32,10 +32,9 @@ class Annealing_solver:
         self.adjacency_matrix = ext.Analytics.get_neighbour_matrix(g)
         row_length = len(self.current_graph.nodes())
 
-
         while 0.001 < self.temperature:
             # perform 1000 iterations at each temperature
-            for i in range(0,1000):
+            for i in range(0,100):
                 # Select random {x,y} in the adjacency matrix.
                 # The algorithm will depend to remove or add an edge between the nodes
                 # x & y depending on if there already exists an edge or not connecting them
@@ -56,6 +55,50 @@ class Annealing_solver:
             self.update_temperature()
         
         return self.current_graph
+
+    def solve_by_moves_only(self, g: nx.Graph):
+        # initialize function variables
+        self.current_graph = ext.Solver.path(g)
+        self.convergence_rate = ext.Analytics.convergence_rate(g)
+
+        nodes = list(g.nodes)
+
+        while 0.001 < self.temperature:
+            for i in range(0, 1000):
+                good_choice = True
+                legal_choice = True
+
+                # Take an edge randomly
+                edge = random.choice(list(g.edges))
+                origin, dest = edge
+
+                # Remove the edge
+                g.remove_edge(origin, dest)
+
+                # Randomise a new destination
+                new_dest = random.choice(nodes)
+
+                # Make sure the new destination isn't the same as the origin or old destination
+                if new_dest == origin or new_dest == dest:
+                    legal_choice = False
+                else:
+                    # If ok this far, make sure the graph is still one component
+                    still_connected = ext.Analytics.is_nodes_connected(g, origin, dest)
+                    # If not, make the move illegal
+                    if not still_connected:
+                        legal_choice = False
+                    else:
+                        # If we're here, the graph is okay this far
+                        # Find a new way to put the edge
+                        good_choice = self.evaluate_move(0, 0, 0)
+
+                if not good_choice or not legal_choice:
+                    # Revert the move
+                    ext.Creator.add_weighted_edge(g, origin, dest)
+            # Update the temp
+            self.update_temperature()
+        return self.current_graph
+
 
     # make_move is a function to  check if the algorithm is attempting to perform
     # an invalid/valid move. The function takes two coordinates representing nodes in a graph, 
@@ -91,7 +134,7 @@ class Annealing_solver:
         # If the new convergence rate is an improvement, the move is always saved.
         if new_convergence < self.convergence_rate:
             return True
-        
+
         # Otherwise calculate the energy level, if the temperature is high the system is 
         # more inclined to keeping all changes. When the temperature "cools" the algorithm
         # becomes less and less inclined to keep changes that result in a regression in convergence rate.   
@@ -111,6 +154,7 @@ class Annealing_solver:
             self.current_graph.remove_edge(x,y)
         else:
             ext.Creator.add_weighted_edge(self.current_graph, x, y)
+
     # Function to save a move that was made. The function takes two coordinates representing positions in
     # the adjacency matrix & a move_type:{0: an edge was added or 1: an edge was removed}. 
     def save_move(self, x, y, move_type):
@@ -123,6 +167,7 @@ class Annealing_solver:
             self.adjacency_matrix[x][y] = 0
             self.adjacency_matrix[y][x] = 0
             self.convergence_rate = ext.Analytics.convergence_rate(self.current_graph)
+
     # The temperature decrements by a factor of 0.92 after each 1000 iterations
     def update_temperature(self):
         self.temperature = self.temperature * 0.92
