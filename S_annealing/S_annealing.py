@@ -70,7 +70,7 @@ class Annealing_solver:
         # check if removing the edge disconnects the graph if so it is an invalid move.
         if move_type == 1:
             self.current_graph.remove_edge(x, y)
-            if nx.is_connected(self.current_graph):
+            if ext.Analytics.is_nodes_connected(self.current_graph, x, y):
                 return True
             # If graph was disconnected by removing the edge, re-add it and return false
             else:
