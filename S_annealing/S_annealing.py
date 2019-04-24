@@ -88,24 +88,31 @@ class Annealing_solver:
         # Fetch the new convergence rate for the graph
         new_convergence = ext.Analytics.convergence_rate(self.current_graph)
         
-        # If the new convergence rate is an improvement, the move is always kept
+        # If the new convergence rate is an improvement, the move is always saved.
         if new_convergence < self.convergence_rate:
             return True
         
-        # Otherwise calculate the energy level, using the  
+        # Otherwise calculate the energy level, if the temperature is high the system is 
+        # more inclined to keeping all changes. When the temperature "cools" the algorithm
+        # becomes less and less inclined to keep changes that result in a regression in convergence rate.   
         e = math.exp(-(new_convergence - self.convergence_rate) / self.temperature)
 
+        # Pick a random float number between 0 and 1, if the variable e is larger than the random
+        # number, we keep the change otherwise we revert it.
         if random.uniform(0,1) < e:
             return True
         
         return False
-
+    
+    # The function to revert a move that has been made. The function takes two coordinates representing positions
+    # in the adjacency matrix, as well as a move_type:{0: an edge was added or 1: an edge was removed}.
     def revert_move(self, x, y, move_type):
         if move_type == 0:
             self.current_graph.remove_edge(x,y)
         else:
             ext.Creator.add_weighted_edge(self.current_graph, x, y)
-
+    # Function to save a move that was made. The function takes two coordinates representing positions in
+    # the adjacency matrix & a move_type:{0: an edge was added or 1: an edge was removed}. 
     def save_move(self, x, y, move_type):
         if move_type == 0:
             self.adjacency_matrix[x][y] = 1
@@ -116,6 +123,6 @@ class Annealing_solver:
             self.adjacency_matrix[x][y] = 0
             self.adjacency_matrix[y][x] = 0
             self.convergence_rate = ext.Analytics.convergence_rate(self.current_graph)
-
+    # The temperature decrements by a factor of 0.92 after each 1000 iterations
     def update_temperature(self):
         self.temperature = self.temperature * 0.92
