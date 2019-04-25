@@ -3,6 +3,8 @@ import S_annealing
 import extended_networkx_tools as ext
 import networkx
 
+from S_annealing.annealing import Annealing
+
 v = {
     0: (-2, 1),
     1: (-2, -1),
@@ -18,10 +20,27 @@ e = {
     5: [3, 4],
 }
 
+
+if False:
+    g = ext.Creator.from_random(30)
+    anneal = Annealing(g)
+    g = anneal.solve()
+    ext.Visual.draw(g)
+
+    convergence_rate = ext.Analytics.convergence_rate(g)
+    energy = ext.Analytics.total_edge_cost(g)
+    distribution = ext.Analytics.get_distance_distribution(g)
+
+    print(convergence_rate)
+    print(energy)
+    print(distribution)
+
+    exit(0)
+
 class Test:
-    x = ext.Creator.from_spec(v, e)
+    x = ext.Creator.from_random(50)
     annealing_solver = S_annealing.Annealing_solver(x)
-    x = annealing_solver.solve_by_moves_only(x)
+    x = annealing_solver.solve()
     distribution = ext.Analytics.get_distance_distribution(x)
     ext.Visual.draw(x)
     print(ext.Analytics.convergence_rate(x))
