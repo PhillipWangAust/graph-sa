@@ -191,6 +191,7 @@ class Annealing_solver:
         convergence_rate = ext.Analytics.convergence_rate(g)
         edge_cost = ext.Analytics.total_edge_cost(g)
         edge_percentage = edge_cost / self.max_energy_cost
+        return edge_cost
         if convergence_rate == 1.0:
             return math.inf
         return edge_cost/(-math.log(convergence_rate))

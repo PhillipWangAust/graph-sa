@@ -33,8 +33,11 @@ class Annealing:
     def get_energy(self):
         convergence_rate = Analytics.convergence_rate(self.graph)
         edge_cost = Analytics.total_edge_cost(self.graph)
-        edge_percentage = edge_cost / self.max_edge_cost
-        return edge_cost
+        #edge_percentage = edge_cost / self.max_edge_cost
+        #return edge_cost
+        if convergence_rate == 1.0:
+            return math.inf
+        return edge_cost/(-math.log(convergence_rate))
 
     def solve(self):
         # If the graph is not connected, just make a path of it
@@ -51,9 +54,9 @@ class Annealing:
                 new_dest = random.randint(0, self.row_length - 1)
 
                 move_type = self.adjacency_matrix[origin][dest]
-                #if move_type == self.MOVE_TYPE_REMOVE:
-                #    if self.adjacency_matrix[origin][new_dest] == 0 and random.randint(0, 1) == 1:
-                #        move_type = self.MOVE_TYPE_MOVE
+                if move_type == self.MOVE_TYPE_REMOVE:
+                    if self.adjacency_matrix[origin][new_dest] == 0 and random.randint(0, 1) == 1:
+                        move_type = self.MOVE_TYPE_MOVE
 
                 if self.can_make_move(move_type, origin, dest, new_dest):
                     # Make the move
@@ -66,6 +69,8 @@ class Annealing:
                     elif not self.evaluate_state():
                         # If not, also revert the graph
                         self.revert_move(move_type, origin, dest, new_dest)
+                    else:
+                        self.energy = self.get_energy()
 
             # Otherwise it worked and we can update the new energy
             self.energy = self.get_energy()

@@ -21,15 +21,15 @@ e = {
 }
 
 
-if False:
-    g = ext.Creator.from_random(30)
+if True:
+    g = ext.Creator.from_random(5)
     anneal = Annealing(g)
     g = anneal.solve()
     ext.Visual.draw(g)
 
     convergence_rate = ext.Analytics.convergence_rate(g)
     energy = ext.Analytics.total_edge_cost(g)
-    distribution = ext.Analytics.get_distance_distribution(g)
+    distribution = networkx.eccentricity(g)
 
     print(convergence_rate)
     print(energy)
@@ -38,7 +38,7 @@ if False:
     exit(0)
 
 class Test:
-    x = ext.Creator.from_random(50)
+    x = ext.Creator.from_random(30)
     annealing_solver = S_annealing.Annealing_solver(x)
     x = annealing_solver.solve()
     distribution = ext.Analytics.get_distance_distribution(x)
