@@ -1,9 +1,7 @@
-import Greedy
-import S_annealing
+import simulated_annealing
 import extended_networkx_tools as ext
-import networkx
 
-from S_annealing.annealing import Annealing
+from simulated_annealing.annealing2 import Annealing2
 
 v = {
     0: (-2, 1),
@@ -22,14 +20,16 @@ e = {
 
 
 if True:
-    g = ext.Creator.from_random(5)
-    anneal = Annealing(g)
-    g = anneal.solve()
+    g = ext.Creator.from_spec(v, e)
+    ext.Visual.draw(g)
+    anneal = Annealing2(g, iterations=(len(g.nodes) * len(g.nodes)))
+    anneal.set_energy_function('edge_cost')
+    g = anneal.solve(True)
     ext.Visual.draw(g)
 
     convergence_rate = ext.Analytics.convergence_rate(g)
     energy = ext.Analytics.total_edge_cost(g)
-    distribution = networkx.eccentricity(g)
+    distribution = ext.Analytics.get_eccentricity_distribution(g)
 
     print(convergence_rate)
     print(energy)
@@ -39,7 +39,7 @@ if True:
 
 class Test:
     x = ext.Creator.from_random(30)
-    annealing_solver = S_annealing.Annealing_solver(x)
+    annealing_solver = simulated_annealing.Annealing1(x)
     x = annealing_solver.solve()
     distribution = ext.Analytics.get_distance_distribution(x)
     ext.Visual.draw(x)

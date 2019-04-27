@@ -2,12 +2,11 @@
 # Written by Oskar Hahr & Johan Niklasson
 import networkx as nx
 import extended_networkx_tools as ext
-from Greedy import Greedy
 import random
 import math
 
 
-class Annealing_solver:
+class Annealing1:
     current_graph = None
     adjacency_matrix = None
     row_length = None
