@@ -5,7 +5,7 @@ from typing import List
 
 import math
 import networkx as nx
-from extended_networkx_tools import Creator, Analytics, Tools, Visual, Solver
+from extended_networkx_tools import Creator, Analytics, Visual, Solver
 
 
 class Annealing2:
