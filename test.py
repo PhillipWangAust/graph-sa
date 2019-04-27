@@ -25,7 +25,7 @@ if __name__ == "__main__":
         g = ext.Creator.from_spec(v, e)
         ext.Visual.draw(g)
         anneal = Annealing2(g, iterations=(len(g.nodes) * len(g.nodes)))
-        anneal.set_energy_function('edge_cost')
+        anneal.set_optimization_parameter('edge_cost')
         g = anneal.solve(True)
         ext.Visual.draw(g)
 

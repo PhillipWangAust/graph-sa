@@ -40,7 +40,7 @@ class Annealing2:
     The current energy of the graph through the iterations.
     """
 
-    energy_function = None
+    _optimization_function = None
     """
     Function that defines the energy measurement
     """
@@ -56,7 +56,7 @@ class Annealing2:
         self.row_length = len(self.adjacency_matrix)
 
         # Default energy function
-        self.energy_function = self.fn_energy_combined
+        self._optimization_function = self.fn_energy_combined
 
     @staticmethod
     def fn_energy_convergence_rate(nxg: nx.Graph):
@@ -72,22 +72,19 @@ class Annealing2:
         edge_cost = Analytics.total_edge_cost(nxg)
         return edge_cost / (-math.log(convergence_rate))
 
-    def set_energy_function(self, fn):
-        if isinstance(fn, types.FunctionType):
-            self.energy_function = fn
-        elif type(fn) == str:
-            if fn == 'edge_cost':
-                self.energy_function = self.fn_energy_edge_cost
-            elif fn == 'convergence_rate':
-                self.energy_function = self.fn_energy_convergence_rate
-            elif fn == 'combined':
-                self.energy_function = self.fn_energy_combined
+    def set_optimization_parameter(self, parameter):
+        if parameter == 'edge_cost':
+            self._optimization_function = self.fn_energy_edge_cost
+        elif parameter == 'convergence_rate':
+            self._optimization_function = self.fn_energy_convergence_rate
+        elif parameter == 'combined':
+            self._optimization_function = self.fn_energy_combined
+
+    def get_energy(self):
+        return self._optimization_function(self.graph)
 
     def update_temperature(self):
         self.temperature = self.temperature * 0.92
-
-    def get_energy(self):
-        return self.energy_function(self.graph)
 
     def solve(self, visualise=False):
         best_graph = None
