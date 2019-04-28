@@ -91,13 +91,13 @@ class Annealing2:
         self.temperature = self.temperature * 0.92
 
     def solve(self, visualise=False):
-        best_graph = None
-        best_energy = math.inf
-
         # If the graph is not connected, just make a path of it, as we must have a
         # connected graph initially.
         if not nx.is_connected(self.graph):
             self.graph = Solver.path(self.graph)
+
+        best_graph = copy.deepcopy(self.graph)
+        best_energy = math.inf
 
         # Get the initial energy
         self.energy = self.get_energy()
