@@ -72,13 +72,17 @@ class Annealing2:
         edge_cost = Analytics.total_edge_cost(nxg)
         return edge_cost / (-math.log(convergence_rate))
 
-    def set_optimization_parameter(self, parameter):
+    @staticmethod
+    def get_optimization_function(parameter):
         if parameter == 'edge_cost':
-            self._optimization_function = self.fn_energy_edge_cost
+            return Annealing2.fn_energy_edge_cost
         elif parameter == 'convergence_rate':
-            self._optimization_function = self.fn_energy_convergence_rate
+            return Annealing2.fn_energy_convergence_rate
         elif parameter == 'combined':
-            self._optimization_function = self.fn_energy_combined
+            return Annealing2.fn_energy_combined
+
+    def set_optimization_parameter(self, parameter):
+        self._optimization_function = self.get_optimization_function(parameter)
 
     def get_energy(self):
         return self._optimization_function(self.graph)
