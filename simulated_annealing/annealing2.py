@@ -68,9 +68,9 @@ class Annealing2:
 
     @staticmethod
     def fn_energy_combined(nxg: nx.Graph):
-        convergence_rate = Analytics.convergence_rate(nxg)
+        convergence_rate = Analytics.convergence_rate(nxg).real
         edge_cost = Analytics.total_edge_cost(nxg)
-        return edge_cost / (-math.log(convergence_rate))
+        return edge_cost / -math.log(convergence_rate)
 
     @staticmethod
     def get_optimization_function(parameter):
@@ -130,11 +130,12 @@ class Annealing2:
                         # Make sure we keep the best state of the graph
                         if self.energy < best_energy:
                             best_graph = copy.deepcopy(self.graph)
+                            best_adjacency_matrix = copy.deepcopy(self.adjacency_matrix)
                             best_energy = self.energy
 
             # Revert to keep the best graph
             self.graph = copy.deepcopy(best_graph)
-            self.adjacency_matrix = Analytics.get_neighbour_matrix(self.graph)
+            self.adjacency_matrix = copy.deepcopy(best_adjacency_matrix)
             # Set the current energy
             self.energy = self.get_energy()
             # Update the temperature after the new graph
