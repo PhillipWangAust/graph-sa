@@ -5,7 +5,7 @@ from typing import List
 
 import math
 import networkx as nx
-from extended_networkx_tools import Creator, Analytics, Visual, Solver
+from extended_networkx_tools import Creator, Analytics, Visual, Solver, AnalyticsGraph
 
 
 class Annealing2:
@@ -14,17 +14,9 @@ class Annealing2:
     MOVE_TYPE_REMOVE = 1
     MOVE_TYPE_MOVE = 2
 
-    graph: nx.Graph
+    graph: AnalyticsGraph
     """
     The current graph that is under work.
-    """
-    adjacency_matrix: List[List[float]]
-    """
-    Matrix of all neighbours of the graph.
-    """
-    row_length: int
-    """
-    The row length of the graph.
     """
 
     temperature: float
@@ -46,30 +38,34 @@ class Annealing2:
     """
 
     def __init__(self, nxg: nx.Graph, start_temperature=10000, iterations=200):
+        # If the graph is not connected, just make a path of it, as we must have a
+        # connected graph initially.
+        if not nx.is_connected(nxg):
+            nxg = Solver.path(nxg)
         # Set the provided graph
-        self.graph = nxg
+        self.graph = AnalyticsGraph(nxg)
 
         # Initialisation of the graph data
         self.temperature = start_temperature
         self.iterations = iterations
-        self.adjacency_matrix = Analytics.get_neighbour_matrix(nxg)
-        self.row_length = len(self.adjacency_matrix)
 
         # Default energy function
         self._optimization_function = self.fn_energy_combined
 
     @staticmethod
-    def fn_energy_convergence_rate(nxg: nx.Graph):
-        return Analytics.convergence_rate(nxg)
+    def fn_energy_convergence_rate(ag: AnalyticsGraph):
+        return ag.get_convergence_rate()
 
     @staticmethod
-    def fn_energy_edge_cost(nxg: nx.Graph):
-        return Analytics.total_edge_cost(nxg)
+    def fn_energy_edge_cost(ag: AnalyticsGraph):
+        return ag.get_edge_cost()
 
     @staticmethod
-    def fn_energy_combined(nxg: nx.Graph):
-        convergence_rate = Analytics.convergence_rate(nxg).real
-        edge_cost = Analytics.total_edge_cost(nxg)
+    def fn_energy_combined(ag: AnalyticsGraph):
+        convergence_rate = ag.get_convergence_rate()
+        edge_cost = ag.get_edge_cost()
+        if convergence_rate == 1.0:
+            return math.inf
         return edge_cost / -math.log(convergence_rate)
 
     @staticmethod
@@ -91,10 +87,6 @@ class Annealing2:
         self.temperature = self.temperature * 0.92
 
     def solve(self, visualise=False):
-        # If the graph is not connected, just make a path of it, as we must have a
-        # connected graph initially.
-        if not nx.is_connected(self.graph):
-            self.graph = Solver.path(self.graph)
 
         best_graph = copy.deepcopy(self.graph)
         best_energy = math.inf
@@ -104,38 +96,40 @@ class Annealing2:
 
         while 0.001 < self.temperature:
             for i in range(0, self.iterations):
-                origin = random.randint(0, self.row_length - 1)
-                dest = random.randint(0, self.row_length - 1)
-                new_dest = random.randint(0, self.row_length - 1)
+                origin = random.randint(0, self.graph.get_dimension() - 1)
+                dest = random.randint(0, self.graph.get_dimension() - 1)
+                new_dest = random.randint(0, self.graph.get_dimension() - 1)
 
-                move_type = self.adjacency_matrix[origin][dest]
+                move_type = self.graph.get_adjacency_matrix_sa()[origin][dest]
                 if move_type == self.MOVE_TYPE_REMOVE:
-                    if self.adjacency_matrix[origin][new_dest] == 0 and random.randint(0, 1) == 1:
+                    if self.graph.get_adjacency_matrix_sa()[origin][new_dest] == 0 and random.randint(0, 1) == 1:
                         move_type = self.MOVE_TYPE_MOVE
 
-                if self.can_make_move(move_type, origin, dest, new_dest):
-                    # Make the move
-                    self.make_move(move_type, origin, dest, new_dest)
-                    # Check if the graph is still valid or not
-                    if not self.graph_is_valid(move_type, origin, dest, new_dest):
-                        # If not, revert the move
-                        self.revert_move(move_type, origin, dest, new_dest)
-                    # Check if the new state is good
-                    elif not self.evaluate_state():
-                        # If not, also revert the graph
-                        self.revert_move(move_type, origin, dest, new_dest)
-                    else:
-                        # Store the current energy
-                        self.energy = self.get_energy()
-                        # Make sure we keep the best state of the graph
-                        if self.energy < best_energy:
-                            best_graph = copy.deepcopy(self.graph)
-                            best_adjacency_matrix = copy.deepcopy(self.adjacency_matrix)
-                            best_energy = self.energy
+                if move_type == self.MOVE_TYPE_ADD:
+                    if not self.graph.add_edge(origin, dest):
+                        continue
+                elif move_type == self.MOVE_TYPE_REMOVE:
+                    if not self.graph.remove_edge(origin, dest):
+                        continue
+                elif move_type == self.MOVE_TYPE_MOVE:
+                    if not self.graph.move_edge(origin, dest, new_dest):
+                        continue
+
+                if not Analytics.is_nodes_connected(self.graph.graph(), origin, dest):
+                    self.graph.revert()
+                    continue
+                if not self.evaluate_state():
+                    self.graph.revert()
+                    continue
+
+                self.energy = self.get_energy()
+                # Make sure we keep the best state of the graph
+                if self.energy < best_energy:
+                    best_graph = copy.deepcopy(self.graph)
+                    best_energy = self.energy
 
             # Revert to keep the best graph
             self.graph = copy.deepcopy(best_graph)
-            self.adjacency_matrix = copy.deepcopy(best_adjacency_matrix)
             # Set the current energy
             self.energy = self.get_energy()
             # Update the temperature after the new graph
@@ -239,5 +233,5 @@ class Annealing2:
         else:
             print(self.temperature)
             print(self.energy)
-            Visual.draw(self.graph)
+            #Visual.draw(self.graph.graph())
             self.print_iter = 10
