@@ -164,5 +164,5 @@ class Annealing2:
         else:
             print(self.temperature)
             print(self.energy)
-            #Visual.draw(self.graph.graph())
+            Visual.draw(self.graph.graph())
             self.print_iter = 10
