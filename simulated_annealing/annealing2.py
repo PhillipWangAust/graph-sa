@@ -1,7 +1,5 @@
 import copy
 import random
-import types
-from typing import List
 
 import math
 import networkx as nx
@@ -157,73 +155,6 @@ class Annealing2:
             return True
 
         return False
-
-    def make_move(self, move_type, origin, dest, new_dest=None):
-        # We're trying to add an edge
-        if move_type == self.MOVE_TYPE_ADD:
-            Creator.add_weighted_edge(self.graph, origin, dest)
-            self.adjacency_matrix[origin][dest] = 1
-            self.adjacency_matrix[dest][origin] = 1
-        # We're trying to remove an edge
-        elif move_type == self.MOVE_TYPE_REMOVE:
-            self.graph.remove_edge(origin, dest)
-            self.adjacency_matrix[origin][dest] = 0
-            self.adjacency_matrix[dest][origin] = 0
-        # We're trying to move an edge
-        elif move_type == self.MOVE_TYPE_MOVE:
-            self.make_move(self.MOVE_TYPE_REMOVE, origin, dest)
-            self.make_move(self.MOVE_TYPE_ADD, origin, new_dest)
-
-    def revert_move(self, move_type, origin, dest, new_dest=None):
-        if move_type == self.MOVE_TYPE_REMOVE:
-            move_type = self.MOVE_TYPE_ADD
-        elif move_type == self.MOVE_TYPE_ADD:
-            move_type = self.MOVE_TYPE_REMOVE
-        elif move_type == self.MOVE_TYPE_MOVE:
-            dest, new_dest = new_dest, dest
-        self.make_move(move_type, origin, dest, new_dest)
-
-    def can_make_move(self, move_type, origin, dest, new_dest):
-        # If the origin and destination is the same, the move won't be allowed anyway
-        if origin == dest:
-            return False
-
-        result = True
-
-        # We're trying to add an edge
-        if move_type == self.MOVE_TYPE_ADD:
-            # Make sure the edge doesn't already exist
-            if self.graph.has_edge(origin, dest):
-                result = False
-        # We're trying to remove an edge
-        elif move_type == self.MOVE_TYPE_REMOVE:
-            # Make sure the edge exist
-            if not self.graph.has_edge(origin, dest):
-                result = False
-        # We're trying to move an edge
-        elif move_type == self.MOVE_TYPE_MOVE:
-            # We shouldn't be allowed to move an edge to itself
-            if dest == new_dest or origin == new_dest:
-                return False
-            # Make sure it's allowed to add an edge
-            if not self.can_make_move(self.MOVE_TYPE_ADD, origin, new_dest, None):
-                result = False
-            # Make sure it's allowed to remove the specific edge
-            elif not self.can_make_move(self.MOVE_TYPE_REMOVE, origin, dest, None):
-                result = False
-
-        return result
-
-    def graph_is_valid(self, move_type, origin, dest, new_dest=None):
-        # If we're adding an edge we don't need to check it
-        if move_type == self.MOVE_TYPE_ADD:
-            return True
-        # If we're removing an edge we must make sure the old nodes are still connected
-        elif move_type == self.MOVE_TYPE_REMOVE:
-            return Analytics.is_nodes_connected(self.graph, origin, dest)
-        # If we're moving an edge we must make sure the old nodes are still connected
-        elif move_type == self.MOVE_TYPE_MOVE:
-            return Analytics.is_nodes_connected(self.graph, origin, dest)
 
     print_iter = 10
 
