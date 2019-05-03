@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='simulated_annealing',
-      version='1.2.0.rc1',
+      version='1.2.1.rc1',
       description='Simulated Annealing solver for networkx graphs',
       keywords='simulated annealing, graph, distributed average consensus, convergence rate',
       long_description=long_description,
@@ -33,7 +33,7 @@ setup(name='simulated_annealing',
             'python-dateutil',
       ],
       py_modules=['six'],
-      python_requires='~=3.0',
+      python_requires='~=3.6',
       zip_safe=False,
       classifiers=[
             # How mature is this project? Common values are
@@ -56,9 +56,7 @@ setup(name='simulated_annealing',
 
             # Specify the Python versions you support here. In particular, ensure
             # that you indicate whether you support Python 2, Python 3 or both.
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.2',
-            'Programming Language :: Python :: 3.3',
-            'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
       ],
 )
