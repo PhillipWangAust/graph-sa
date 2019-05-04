@@ -113,7 +113,7 @@ class Annealing2:
                     if not self.graph.move_edge(origin, dest, new_dest):
                         continue
 
-                if not Analytics.is_nodes_connected(self.graph.graph(), origin, dest):
+                if not self.graph.is_connected():
                     self.graph.revert()
                     continue
                 if not self.evaluate_state():
