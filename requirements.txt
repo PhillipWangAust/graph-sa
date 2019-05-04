@@ -1,6 +1,6 @@
 cycler==0.10.0
 decorator==4.4.0
-extended-networkx-tools==0.15.1.rc1
+git+git://github.com/vonNiklasson/extended-networkx-tools.git@numba-support#extended-networkx-tools
 kiwisolver==1.0.1
 matplotlib==3.0.3
 networkx==2.3
