@@ -64,6 +64,8 @@ class Annealing2:
         edge_cost = ag.get_edge_cost()
         if convergence_rate == 1.0:
             return math.inf
+        if convergence_rate == 0:
+            convergence_rate = 1e-8
         return edge_cost / -math.log(convergence_rate)
 
     @staticmethod
