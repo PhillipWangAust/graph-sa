@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='simulated_annealing',
-      version='1.3.0.rc1',
+      version='1.4.0.rc1',
       description='Simulated Annealing solver for networkx graphs',
       keywords='simulated annealing, graph, distributed average consensus, convergence rate',
       long_description=long_description,
