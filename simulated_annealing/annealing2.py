@@ -84,17 +84,20 @@ class Annealing2:
     def update_temperature(self):
         self.temperature = self.temperature * 0.92
 
-    def solve(self, visualise=False):
+    def solve(self, visualise=False, solve_for_nodes=None):
 
         best_graph = copy.deepcopy(self.graph)
         best_energy = math.inf
+
+        if solve_for_nodes is None:
+            solve_for_nodes = list(self.graph.graph().nodes)
 
         # Get the initial energy
         self.energy = self.get_energy()
 
         while 0.001 < self.temperature:
             for i in range(0, self.iterations):
-                origin = random.randint(0, self.graph.get_dimension() - 1)
+                origin = solve_for_nodes[random.randint(0, len(solve_for_nodes) - 1)]
                 dest = random.randint(0, self.graph.get_dimension() - 1)
                 new_dest = random.randint(0, self.graph.get_dimension() - 1)
 
