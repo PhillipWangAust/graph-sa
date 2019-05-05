@@ -36,12 +36,14 @@ class Annealing2:
     """
 
     def __init__(self, nxg: nx.Graph, start_temperature=10000, iterations=200):
+        # Take a copy of the graph
+        graph = nxg.copy()
         # If the graph is not connected, just make a path of it, as we must have a
         # connected graph initially.
-        if not nx.is_connected(nxg):
-            nxg = Solver.path(nxg)
+        if not nx.is_connected(graph):
+            graph = Solver.path(graph)
         # Set the provided graph
-        self.graph = AnalyticsGraph(nxg)
+        self.graph = AnalyticsGraph(graph)
 
         # Initialisation of the graph data
         self.temperature = start_temperature
